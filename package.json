@@ -1,0 +1,72 @@
+{
+  "name": "n8n-nodes-odata1c",
+  "version": "0.1.0",
+  "description": "n8n community node for the 1C:Enterprise standard OData REST interface: query, create, update and delete catalogs, documents and registers",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "1c",
+    "1c-enterprise",
+    "odata",
+    "rest",
+    "erp",
+    "integration"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Alexander Lyzhenko",
+    "email": "alexander.lyzhenko@yandex.ru"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lyzhenko/n8n-nodes-odata1c.git"
+  },
+  "homepage": "https://github.com/lyzhenko/n8n-nodes-odata1c#readme",
+  "bugs": {
+    "url": "https://github.com/lyzhenko/n8n-nodes-odata1c/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.15.0"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "mock": "node mock/odata1c-mock.mjs",
+    "prepublishOnly": "npm run build",
+    "pack:tgz": "npm pack --silent"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "README.ru.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "docs",
+    "examples",
+    "LICENSE"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/OData1cApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/OData1c/OData1c.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "n8n-workflow": "2.47.2",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
+

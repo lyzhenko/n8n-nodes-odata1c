@@ -1,0 +1,54 @@
+{
+  "name": "OData 1C: read a catalog page",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "When clicking 'Execute workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-240, 0]
+    },
+    {
+      "parameters": {
+        "resource": "entity",
+        "operation": "getMany",
+        "entitySet": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Catalog_Номенклатура"
+        },
+        "filter": "DeletionMark eq false",
+        "select": "Ref_Key,Code,Description,Артикул",
+        "orderBy": "Code",
+        "returnAll": false,
+        "limit": 5,
+        "options": {
+          "pageSize": 100
+        }
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000002",
+      "name": "Номенклатура",
+      "type": "n8n-nodes-odata1c.odata1c",
+      "typeVersion": 1,
+      "position": [20, 0]
+    }
+  ],
+  "connections": {
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Номенклатура",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

@@ -1,0 +1,76 @@
+{
+  "name": "OData 1C: create and post a customer order",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b2c3d4e5-0002-4000-8000-000000000001",
+      "name": "When clicking 'Execute workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-280, 0]
+    },
+    {
+      "parameters": {
+        "resource": "entity",
+        "operation": "create",
+        "entitySet": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Document_ЗаказКлиента"
+        },
+        "fields": "{\n  \"Date\": \"2024-03-20T10:00:00\",\n  \"Контрагент_Key\": \"1f3b9a40-5b0e-11ee-9a4d-005056c00008\",\n  \"Комментарий\": \"Created by n8n\",\n  \"Товары\": [\n    {\n      \"LineNumber\": \"1\",\n      \"Номенклатура_Key\": \"3f1c9b7e-9d2a-11ee-8f3a-00155d0a1b2c\",\n      \"Количество\": 4,\n      \"Цена\": 128.5,\n      \"Сумма\": 514\n    }\n  ]\n}"
+      },
+      "id": "b2c3d4e5-0002-4000-8000-000000000002",
+      "name": "Create order",
+      "type": "n8n-nodes-odata1c.odata1c",
+      "typeVersion": 1,
+      "position": [-20, 0]
+    },
+    {
+      "parameters": {
+        "resource": "entity",
+        "operation": "posting",
+        "entitySet": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Document_ЗаказКлиента"
+        },
+        "refKey": "={{ $json.Ref_Key }}",
+        "postingAction": "post"
+      },
+      "id": "b2c3d4e5-0002-4000-8000-000000000003",
+      "name": "Post order",
+      "type": "n8n-nodes-odata1c.odata1c",
+      "typeVersion": 1,
+      "position": [220, 0]
+    }
+  ],
+  "connections": {
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Create order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create order": {
+      "main": [
+        [
+          {
+            "node": "Post order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
