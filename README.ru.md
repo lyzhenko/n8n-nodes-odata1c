@@ -323,3 +323,6 @@ npm publish --access public
 
 [MIT](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/LICENSE) © Alexander Lyzhenko
 
+1С:Предприятие — товарный знак фирмы «1С». Проект является независимой интеграцией
+и не связан с фирмой «1С», не поддерживается и не одобряется ею.
+

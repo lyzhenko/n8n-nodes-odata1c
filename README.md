@@ -324,3 +324,6 @@ npm publish --access public
 
 [MIT](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/LICENSE) © Alexander Lyzhenko
 
+1C:Enterprise is a trademark of 1C Company. This project is an independent integration
+and is not affiliated with, endorsed by or supported by 1C.
+
