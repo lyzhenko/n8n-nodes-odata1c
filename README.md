@@ -8,7 +8,7 @@
 n8n community node for the **standard OData interface of 1C:Enterprise** ([«Стандартный интерфейс OData»](https://infostart.ru/1c/articles/1570140/)). It reads and writes catalogs, documents, registers and constants of a 1C infobase over the automatic REST interface — without writing a single line of 1C code.
 
 * 1C:Enterprise 8.3.10+ with the standard OData interface published (see [docs/1c-odata-setup.md](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/docs/1c-odata-setup.md))
-* n8n 1.x and 2.x, Node.js 20.15+
+* n8n 2.x (tested on 2.47.7; 1.x is likely compatible but untested), Node.js 20.15+
 * Tested against a production ERP 2.5 infobase: 3,535 entity sets, 20 MB `$metadata`, 29k catalog items
 
 Russian documentation: [README.ru.md](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/README.ru.md).
@@ -326,4 +326,5 @@ npm publish --access public
 
 1C:Enterprise is a trademark of 1C Company. This project is an independent integration
 and is not affiliated with, endorsed by or supported by 1C.
+
 
