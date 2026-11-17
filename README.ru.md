@@ -315,7 +315,7 @@ SSH_PASS=…
 
 Workflow идемпотентен: если версия из `package.json` уже есть в npm, шаг публикации пропускается с пометкой в логе. Поэтому релиз уже опубликованной версии и ручной запуск (`workflow_dispatch`) ничего не ломают — чтобы что-то опубликовать, нужна новая версия.
 
-Учётные данные — npm **Trusted publishing** (OIDC), долгоживущий токен не нужен: на npmjs.com откройте страницу пакета → **Settings → Trusted publishing** → добавьте репозиторий `lyzhenko/n8n-nodes-odata1c` и workflow `publish.yml`. Provenance есть только у версий, опубликованных через этот workflow; ручной `npm publish` аттестации не создаёт.
+Учётные данные — npm **Trusted publishing** (OIDC), долгоживущий токен не нужен: на npmjs.com откройте страницу пакета → **Settings → Trusted publishing** → добавьте репозиторий `lyzhenko/n8n-nodes-odata1c` и workflow `publish.yml`. В блоке **Allowed actions** отметьте **Direct npm publish**: новый publisher по умолчанию разрешает только staged-публикацию и отвечает на прямой `npm publish` ошибкой `403 … OIDC permission denied for this action`. Provenance есть только у версий, опубликованных через этот workflow; ручной `npm publish` аттестации не создаёт.
 
 Запасной вариант — секрет репозитория `NPM_TOKEN` (npm → Access Tokens, **Automation**, с правом публикации пакета): раскомментируйте `env: NODE_AUTH_TOKEN` в шаге Publish.
 

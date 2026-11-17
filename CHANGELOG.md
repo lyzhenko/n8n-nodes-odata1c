@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+* READMEs: the trusted-publisher setup now states that **Direct npm publish** must be enabled
+  under *Allowed actions*. A fresh trusted publisher allows staged publishes only and rejects a
+  direct `npm publish` with `403 … OIDC permission denied for this action` — exactly what
+  happened while publishing `0.1.1`.
+
 ## [0.1.1] — 2026-11-18
 
 ### Fixed

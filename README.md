@@ -316,7 +316,7 @@ The remote part is [deploy/install-node.sh](https://github.com/lyzhenko/n8n-node
 
 The workflow is idempotent: when the version from `package.json` is already on npm, the publish step is skipped and says so in the log. A release for an already-published version, or a manual `workflow_dispatch` run, therefore cannot fail the release — publishing anything requires a new version.
 
-Authentication uses npm **Trusted publishing** (OIDC), so no long-lived token is needed: on npmjs.com open the package page → **Settings → Trusted publishing** → add the `lyzhenko/n8n-nodes-odata1c` repository and the `publish.yml` workflow. Provenance exists only for versions published by this workflow; a manual `npm publish` produces no attestation.
+Authentication uses npm **Trusted publishing** (OIDC), so no long-lived token is needed: on npmjs.com open the package page → **Settings → Trusted publishing** → add the `lyzhenko/n8n-nodes-odata1c` repository and the `publish.yml` workflow. Under **Allowed actions** tick **Direct npm publish**: a new trusted publisher allows staged publishes only and answers a direct `npm publish` with `403 … OIDC permission denied for this action`. Provenance exists only for versions published by this workflow; a manual `npm publish` produces no attestation.
 
 Fallback: the repository secret `NPM_TOKEN` (npm → Access Tokens, **Automation**, with publish rights for the package) — uncomment `env: NODE_AUTH_TOKEN` in the Publish step.
 
