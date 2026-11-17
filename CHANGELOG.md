@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0] — 2026-11-17
 
-First public release.
+First public release. Published to npm as `n8n-nodes-odata1c@0.1.0`.
 
 ### Added
 
@@ -45,4 +45,5 @@ First public release.
   `$metadata`, 29k catalog items): reading catalogs and documents, filtering by date,
   expanding references, counting, creating and patching a catalog item with
   `If-Match`, deleting it, and running the node inside n8n 2.47.7.
+
 

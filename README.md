@@ -49,7 +49,7 @@ Russian documentation: [README.ru.md](https://github.com/lyzhenko/n8n-nodes-odat
 
 ## Installation
 
-### From the n8n UI (recommended after publishing)
+### From the n8n UI (recommended)
 
 1. Open **Settings → Community nodes → Install**.
 2. Enter `n8n-nodes-odata1c` and confirm.
@@ -326,5 +326,6 @@ npm publish --access public
 
 1C:Enterprise is a trademark of 1C Company. This project is an independent integration
 and is not affiliated with, endorsed by or supported by 1C.
+
 
 
