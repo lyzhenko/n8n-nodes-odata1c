@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-odata1c",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "n8n community node for the 1C:Enterprise standard OData REST interface: query, create, update and delete catalogs, documents and registers",
   "keywords": [
     "n8n-community-node-package",

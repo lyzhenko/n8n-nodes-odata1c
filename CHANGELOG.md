@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.1] — 2026-11-18
 
 ### Fixed
 
@@ -22,8 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the publish step is skipped and the run stays green.
 * Publishing authenticates through npm Trusted publishing (OIDC) by default, so no
   long-lived `NPM_TOKEN` secret is required; the workflow emits provenance.
-* READMEs: installation points at the published `0.1.0`, and the release section
-  explains trusted publishing, provenance and the idempotent workflow.
+* READMEs: installation points at the published `0.1.1`, and the release section
+  explains trusted publishing, provenance and the idempotent workflow. This release
+  exists mainly to refresh the package page on npm, which always shows the README of
+  the published version.
 
 ## [0.1.0] — 2026-11-17
 

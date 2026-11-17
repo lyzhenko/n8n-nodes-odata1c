@@ -51,10 +51,10 @@ Community-нода n8n для **стандартного интерфейса OD
 
 ### Из интерфейса n8n (рекомендуется)
 
-Пакет опубликован в npm: [`n8n-nodes-odata1c@0.1.0`](https://www.npmjs.com/package/n8n-nodes-odata1c).
+Пакет опубликован в npm: [`n8n-nodes-odata1c@0.1.1`](https://www.npmjs.com/package/n8n-nodes-odata1c).
 
 1. Откройте **Settings → Community nodes → Install**.
-2. Введите `n8n-nodes-odata1c` и подтвердите установку (можно закрепить версию: `n8n-nodes-odata1c@0.1.0`).
+2. Введите `n8n-nodes-odata1c` и подтвердите установку (можно закрепить версию: `n8n-nodes-odata1c@0.1.1`).
 3. Если нода не появилась — перезапустите n8n.
 
 Community-ноды должны быть разрешены на инстансе (`N8N_COMMUNITY_PACKAGES_ENABLED=true`, для непроверенных пакетов — `N8N_UNVERIFIED_PACKAGES_ENABLED=true`).
@@ -62,10 +62,10 @@ Community-ноды должны быть разрешены на инстанс�
 ### Из tarball (офлайн или свой сервер)
 
 ```bash
-npm pack                       # создаст n8n-nodes-odata1c-0.1.0.tgz
+npm pack                       # создаст n8n-nodes-odata1c-0.1.1.tgz
 # на сервере n8n, от пользователя, под которым работает n8n:
 mkdir -p ~/.n8n/nodes/node_modules/n8n-nodes-odata1c
-tar -xzf n8n-nodes-odata1c-0.1.0.tgz -C ~/.n8n/nodes/node_modules/n8n-nodes-odata1c --strip-components=1
+tar -xzf n8n-nodes-odata1c-0.1.1.tgz -C ~/.n8n/nodes/node_modules/n8n-nodes-odata1c --strip-components=1
 systemctl restart n8n          # или перезапуск контейнера
 ```
 

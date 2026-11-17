@@ -51,10 +51,10 @@ Russian documentation: [README.ru.md](https://github.com/lyzhenko/n8n-nodes-odat
 
 ### From the n8n UI (recommended)
 
-The package is published to npm as [`n8n-nodes-odata1c@0.1.0`](https://www.npmjs.com/package/n8n-nodes-odata1c).
+The package is published to npm as [`n8n-nodes-odata1c@0.1.1`](https://www.npmjs.com/package/n8n-nodes-odata1c).
 
 1. Open **Settings → Community nodes → Install**.
-2. Enter `n8n-nodes-odata1c` and confirm (you can pin the version: `n8n-nodes-odata1c@0.1.0`).
+2. Enter `n8n-nodes-odata1c` and confirm (you can pin the version: `n8n-nodes-odata1c@0.1.1`).
 3. Restart n8n if the node does not appear immediately.
 
 Community nodes must be enabled on the instance (`N8N_COMMUNITY_PACKAGES_ENABLED=true`, and `N8N_UNVERIFIED_PACKAGES_ENABLED=true` for unverified packages).
@@ -62,10 +62,10 @@ Community nodes must be enabled on the instance (`N8N_COMMUNITY_PACKAGES_ENABLED
 ### From a tarball (offline or self-hosted)
 
 ```bash
-npm pack                       # produces n8n-nodes-odata1c-0.1.0.tgz
+npm pack                       # produces n8n-nodes-odata1c-0.1.1.tgz
 # on the n8n host, as the user that runs n8n:
 mkdir -p ~/.n8n/nodes/node_modules/n8n-nodes-odata1c
-tar -xzf n8n-nodes-odata1c-0.1.0.tgz -C ~/.n8n/nodes/node_modules/n8n-nodes-odata1c --strip-components=1
+tar -xzf n8n-nodes-odata1c-0.1.1.tgz -C ~/.n8n/nodes/node_modules/n8n-nodes-odata1c --strip-components=1
 systemctl restart n8n          # or restart the container
 ```
 
