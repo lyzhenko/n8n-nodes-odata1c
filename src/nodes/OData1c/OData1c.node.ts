@@ -515,8 +515,10 @@ export class OData1c implements INodeType {
 
 		for (let i = 0; i < items.length; i++) {
 			try {
-				const resource = String(this.getNodeParameter('resource', i) as string);
-				const operation = String(this.getNodeParameter('operation', i) as string);
+				// n8n stores only parameters that differ from their defaults, so the
+				// defaults have to be passed as fallbacks here.
+				const resource = String(this.getNodeParameter('resource', i, 'entity') as string);
+				const operation = String(this.getNodeParameter('operation', i, 'getMany') as string);
 
 				let results: IDataObject[];
 				if (resource === 'entity') {

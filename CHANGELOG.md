@@ -32,7 +32,7 @@ First public release.
 * `usableAsTool` for n8n AI Agents.
 * Bundled dependency-free 1C OData mock (`mock/odata1c-mock.mjs`) used by the test
   suite and usable as a local sandbox.
-* Test suite: 37 unit and end-to-end tests, no 1C server required.
+* Test suite: 38 unit and end-to-end tests, no 1C server required.
 * `scripts/live-check.mjs` to verify a real infobase (read-only by default,
   `--write` also creates, patches and deletes a test item).
 * `deploy/deploy.py` + `deploy/install-node.sh` for a native, non-Docker n8n.
@@ -45,3 +45,4 @@ First public release.
   `$metadata`, 29k catalog items): reading catalogs and documents, filtering by date,
   expanding references, counting, creating and patching a catalog item with
   `If-Match`, deleting it, and running the node inside n8n 2.47.7.
+

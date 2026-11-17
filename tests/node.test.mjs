@@ -320,6 +320,19 @@ describe('custom requests', () => {
 	});
 });
 
+describe('defaults', () => {
+	test('falls back to the default resource and operation when n8n omits them', async () => {
+		const items = await run({
+			entitySet: { __rl: true, mode: 'name', value: 'Catalog_Номенклатура' },
+			filter: 'DeletionMark eq false',
+			returnAll: false,
+			limit: 1,
+		});
+		assert.equal(items.length, 1);
+		assert.ok(items[0].json.Ref_Key);
+	});
+});
+
 describe('error handling', () => {
 	test('honours Continue On Fail', async () => {
 		const items = await run(
