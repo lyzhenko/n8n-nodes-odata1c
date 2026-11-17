@@ -10,8 +10,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [20.x, 22.x, 24.x]
+        # n8n 2.x requires Node.js >= 24, and so does the n8n-workflow devDependency
+        # (n8n-workflow → @n8n/expression-runtime → isolated-vm, which refuses older
+        # runtimes and builds from source), so older versions cannot even run npm ci.
+        node-version: [24.x]
     steps:
       - uses: actions/checkout@v4
 

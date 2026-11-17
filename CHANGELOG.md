@@ -5,6 +5,26 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+* CI was red on every push: the Node 20 and 22 matrix jobs failed in `npm ci`, because
+  `n8n-workflow` → `@n8n/expression-runtime` → `isolated-vm` requires Node.js ≥ 24 and
+  builds native code from source. CI now runs on Node.js 24, the runtime n8n 2.x itself
+  requires.
+* `engines.node` raised from `>=20.15.0` to `>=24.0.0` to match n8n 2.x; the READMEs
+  promised Node.js 20.15+.
+
+### Changed
+
+* The publish workflow is idempotent: when the `package.json` version is already on npm,
+  the publish step is skipped and the run stays green.
+* Publishing authenticates through npm Trusted publishing (OIDC) by default, so no
+  long-lived `NPM_TOKEN` secret is required; the workflow emits provenance.
+* READMEs: installation points at the published `0.1.0`, and the release section
+  explains trusted publishing, provenance and the idempotent workflow.
+
 ## [0.1.0] — 2026-11-17
 
 First public release. Published to npm as `n8n-nodes-odata1c@0.1.0`.

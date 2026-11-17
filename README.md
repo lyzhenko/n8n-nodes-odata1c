@@ -8,7 +8,7 @@
 n8n community node for the **standard OData interface of 1C:Enterprise** ([«Стандартный интерфейс OData»](https://infostart.ru/1c/articles/1570140/)). It reads and writes catalogs, documents, registers and constants of a 1C infobase over the automatic REST interface — without writing a single line of 1C code.
 
 * 1C:Enterprise 8.3.10+ with the standard OData interface published (see [docs/1c-odata-setup.md](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/docs/1c-odata-setup.md))
-* n8n 2.x (tested on 2.47.7; 1.x is likely compatible but untested), Node.js 20.15+
+* n8n 2.x (tested on 2.47.7; 1.x is likely compatible but untested), Node.js 24+ — the same runtime n8n 2.x itself requires
 * Tested against a production ERP 2.5 infobase: 3,535 entity sets, 20 MB `$metadata`, 29k catalog items
 
 Russian documentation: [README.ru.md](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/README.ru.md).
@@ -51,8 +51,10 @@ Russian documentation: [README.ru.md](https://github.com/lyzhenko/n8n-nodes-odat
 
 ### From the n8n UI (recommended)
 
+The package is published to npm as [`n8n-nodes-odata1c@0.1.0`](https://www.npmjs.com/package/n8n-nodes-odata1c).
+
 1. Open **Settings → Community nodes → Install**.
-2. Enter `n8n-nodes-odata1c` and confirm.
+2. Enter `n8n-nodes-odata1c` and confirm (you can pin the version: `n8n-nodes-odata1c@0.1.0`).
 3. Restart n8n if the node does not appear immediately.
 
 Community nodes must be enabled on the instance (`N8N_COMMUNITY_PACKAGES_ENABLED=true`, and `N8N_UNVERIFIED_PACKAGES_ENABLED=true` for unverified packages).
@@ -310,10 +312,17 @@ The remote part is [deploy/install-node.sh](https://github.com/lyzhenko/n8n-node
 ## Releasing
 
 1. Bump `version` in `package.json`, update [CHANGELOG.md](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/CHANGELOG.md).
-2. Push, then create a GitHub release. The workflow [.github/workflows/publish.yml](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/.github/workflows/publish.yml) publishes to npm with provenance.
-3. The repository secret `NPM_TOKEN` must be an npm **Automation** token (npm → Access Tokens) with publish rights for the package.
+2. Push to `main`, then create a GitHub release tagged `v<version>`. The workflow [.github/workflows/publish.yml](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/.github/workflows/publish.yml) builds the package, runs the tests and publishes it to npm with provenance.
 
-Manual publish (with an npm login that owns the package):
+The workflow is idempotent: when the version from `package.json` is already on npm, the publish step is skipped and says so in the log. A release for an already-published version, or a manual `workflow_dispatch` run, therefore cannot fail the release — publishing anything requires a new version.
+
+Authentication uses npm **Trusted publishing** (OIDC), so no long-lived token is needed: on npmjs.com open the package page → **Settings → Trusted publishing** → add the `lyzhenko/n8n-nodes-odata1c` repository and the `publish.yml` workflow. Provenance exists only for versions published by this workflow; a manual `npm publish` produces no attestation.
+
+Fallback: the repository secret `NPM_TOKEN` (npm → Access Tokens, **Automation**, with publish rights for the package) — uncomment `env: NODE_AUTH_TOKEN` in the Publish step.
+
+The npm package page shows the README of the published version, so README edits reach npm only with the next publish.
+
+Manual publish (with an npm login that owns the package; no provenance):
 
 ```bash
 npm whoami

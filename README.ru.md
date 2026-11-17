@@ -8,7 +8,7 @@
 Community-нода n8n для **стандартного интерфейса OData 1С:Предприятия** ([«Работа с 1С через протокол OData»](https://infostart.ru/1c/articles/1570140/)). Читает и записывает справочники, документы, регистры и константы информационной базы через автоматический REST-интерфейс — без единой строки кода в 1С.
 
 * 1С:Предприятие 8.3.10+ с опубликованным стандартным интерфейсом OData (см. [docs/1c-odata-setup.ru.md](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/docs/1c-odata-setup.ru.md))
-* n8n 2.x (проверено на 2.47.7; 1.x, вероятно, совместим, но не тестировался), Node.js 20.15+
+* n8n 2.x (проверено на 2.47.7; 1.x, вероятно, совместим, но не тестировался), Node.js 24+ — столько же требует сам n8n 2.x
 * Проверено на рабочей базе ERP 2.5: 3 535 сущностей, 20 МБ `$metadata`, 29 тыс. элементов номенклатуры
 
 Документация на английском: [README.md](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/README.md).
@@ -51,8 +51,10 @@ Community-нода n8n для **стандартного интерфейса OD
 
 ### Из интерфейса n8n (рекомендуется)
 
+Пакет опубликован в npm: [`n8n-nodes-odata1c@0.1.0`](https://www.npmjs.com/package/n8n-nodes-odata1c).
+
 1. Откройте **Settings → Community nodes → Install**.
-2. Введите `n8n-nodes-odata1c` и подтвердите установку.
+2. Введите `n8n-nodes-odata1c` и подтвердите установку (можно закрепить версию: `n8n-nodes-odata1c@0.1.0`).
 3. Если нода не появилась — перезапустите n8n.
 
 Community-ноды должны быть разрешены на инстансе (`N8N_COMMUNITY_PACKAGES_ENABLED=true`, для непроверенных пакетов — `N8N_UNVERIFIED_PACKAGES_ENABLED=true`).
@@ -309,10 +311,17 @@ SSH_PASS=…
 ## Публикация
 
 1. Поднимите `version` в `package.json`, обновите [CHANGELOG.md](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/CHANGELOG.md).
-2. Запушьте изменения и создайте релиз на GitHub. Workflow [.github/workflows/publish.yml](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/.github/workflows/publish.yml) опубликует пакет в npm с provenance.
-3. Секрет репозитория `NPM_TOKEN` — это npm **Automation** token (npm → Access Tokens) с правом публикации пакета.
+2. Запушьте изменения в `main` и создайте релиз на GitHub с тегом `v<версия>`. Workflow [.github/workflows/publish.yml](https://github.com/lyzhenko/n8n-nodes-odata1c/blob/main/.github/workflows/publish.yml) соберёт пакет, прогонит тесты и опубликует его в npm с provenance.
 
-Ручная публикация (из-под npm-пользователя, которому принадлежит пакет):
+Workflow идемпотентен: если версия из `package.json` уже есть в npm, шаг публикации пропускается с пометкой в логе. Поэтому релиз уже опубликованной версии и ручной запуск (`workflow_dispatch`) ничего не ломают — чтобы что-то опубликовать, нужна новая версия.
+
+Учётные данные — npm **Trusted publishing** (OIDC), долгоживущий токен не нужен: на npmjs.com откройте страницу пакета → **Settings → Trusted publishing** → добавьте репозиторий `lyzhenko/n8n-nodes-odata1c` и workflow `publish.yml`. Provenance есть только у версий, опубликованных через этот workflow; ручной `npm publish` аттестации не создаёт.
+
+Запасной вариант — секрет репозитория `NPM_TOKEN` (npm → Access Tokens, **Automation**, с правом публикации пакета): раскомментируйте `env: NODE_AUTH_TOKEN` в шаге Publish.
+
+Страница пакета на npm показывает README из опубликованной версии, поэтому правки в README попадают на npm только со следующей публикацией.
+
+Ручная публикация (из-под npm-пользователя, которому принадлежит пакет; без provenance):
 
 ```bash
 npm whoami

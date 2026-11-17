@@ -5,12 +5,17 @@ on:
     types: [published]
   workflow_dispatch:
 
+# One publish at a time: a second release must not race the first one.
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # required for the npm provenance statement
+      id-token: write # npm provenance and Trusted publishing (OIDC)
     steps:
       - uses: actions/checkout@v4
 
@@ -26,7 +31,29 @@ jobs:
       - name: Unit and end-to-end tests (bundled 1C OData mock)
         run: npm test
 
+      # Releasing a version that is already on npm is a normal mistake, so the
+      # workflow checks the registry and skips the publish step instead of failing.
+      - name: Check whether this version is already published
+        id: version
+        run: |
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::$name@$version is already on npm — skipping npm publish."
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::$name@$version is not on npm yet — publishing."
+          fi
+
       - name: Publish
+        if: steps.version.outputs.published == 'false'
+        # Authenticates through npm Trusted publishing (OIDC): configure this repository
+        # and this workflow on npmjs.com (Package → Settings → Trusted publishing) and
+        # leave NPM_TOKEN unset. For a token-based fallback set the repository secret
+        # NPM_TOKEN and uncomment the two lines below.
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
