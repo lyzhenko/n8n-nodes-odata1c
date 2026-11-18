@@ -77,7 +77,7 @@ systemctl restart n8n          # или перезапуск контейнер�
 
 | Поле | Описание |
 | --- | --- |
-| **Base URL** | Адрес публикации базы **без** `/odata/standard.odata`, например `https://1c.example.com/erp` или `http://192.168.0.20/trade`. Адрес вместе с `/odata/standard.odata` тоже принимается и нормализуется. |
+| **Base URL** | Адрес публикации базы **без** `/odata/standard.odata`, например `https://1c.example.com/erp` или `http://trade.example.com`. Адрес вместе с `/odata/standard.odata` тоже принимается и нормализуется. |
 | **Username** / **Password** | Пользователь 1С с доступом к интерфейсу OData. Заведите отдельного пользователя интеграции с минимальными правами — не администратора. |
 | **Ignore SSL Issues** | Включено по умолчанию: у внутренних серверов 1С обычно самоподписанный сертификат. Выключите, если сертификат валидный. |
 | **Timeout (ms)** | Таймаут запроса, по умолчанию 60 000 мс. «Холодный» сеанс 1С или большой `$metadata` могут требовать больше. |
@@ -301,8 +301,8 @@ python deploy/deploy.py --no-build # использовать готовую с�
 `deploy/deploy.py` читает настройки SSH из `.env` (или `../n8n_deploy/.env`):
 
 ```
-SSH_PATH=http://192.168.0.11
-SSH_USER=eladm
+SSH_HOST=ssh.example.com
+SSH_USER=deploy-user
 SSH_PASS=…
 ```
 

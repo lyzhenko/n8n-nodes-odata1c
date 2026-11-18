@@ -78,7 +78,7 @@ Create a credential of type **OData 1C API**.
 
 | Field | Description |
 | --- | --- |
-| **Base URL** | Publication URL of the infobase **without** `/odata/standard.odata`, for example `https://1c.example.com/erp` or `http://192.168.0.20/trade`. A URL with `/odata/standard.odata` is also accepted and normalised. |
+| **Base URL** | Publication URL of the infobase **without** `/odata/standard.odata`, for example `https://1c.example.com/erp` or `http://trade.example.com`. A URL with `/odata/standard.odata` is also accepted and normalised. |
 | **Username** / **Password** | A 1C user with access to the OData interface. Use a dedicated integration user with the minimum required rights — never an administrator. |
 | **Ignore SSL Issues** | On by default: internal 1C servers usually have self-signed certificates. Turn it off if the certificate is valid. |
 | **Timeout (ms)** | Request timeout, 60 000 ms by default. A cold 1C session or a big `$metadata` request may need more. |
@@ -302,8 +302,8 @@ python deploy/deploy.py --no-build # reuse the existing build
 `deploy/deploy.py` reads SSH settings from `.env` (or `../n8n_deploy/.env`):
 
 ```
-SSH_PATH=http://192.168.0.11
-SSH_USER=eladm
+SSH_HOST=ssh.example.com
+SSH_USER=deploy-user
 SSH_PASS=…
 ```
 
