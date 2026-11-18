@@ -41,7 +41,7 @@ Russian documentation: [README.ru.md](https://github.com/lyzhenko/n8n-nodes-odat
 | Custom request | Any method and path against `/odata/standard.odata` |
 | Filters | OData 3.0: `eq`, `ne`, `gt`, `ge`, `lt`, `le`, `and`, `or`, `not`, `like`, `startswith`, `endswith`, `substringof` |
 | Paging | Automatic `$top`/`$skip` loop when *Return All* is on, stable page size |
-| Dynamic lists | Entity sets are loaded from `$metadata` and cached for 5 minutes |
+| Dynamic lists | Entity sets are loaded from `$metadata`, cached for 12 hours, refreshed in the background and returned 100 per page with the closest matches first |
 | Optimistic locking | Optional `If-Match` with the current `DataVersion` (HTTP 412 on conflict) |
 | Data load mode | Optional `1C_OData-DataLoadMode: true` header for exchange-style writes |
 | SSL | Self-signed certificates supported per credential |
@@ -51,10 +51,10 @@ Russian documentation: [README.ru.md](https://github.com/lyzhenko/n8n-nodes-odat
 
 ### From the n8n UI (recommended)
 
-The package is published to npm as [`n8n-nodes-odata1c@0.1.1`](https://www.npmjs.com/package/n8n-nodes-odata1c).
+The package is published to npm as [`n8n-nodes-odata1c@0.2.0`](https://www.npmjs.com/package/n8n-nodes-odata1c).
 
 1. Open **Settings → Community nodes → Install**.
-2. Enter `n8n-nodes-odata1c` and confirm (you can pin the version: `n8n-nodes-odata1c@0.1.1`).
+2. Enter `n8n-nodes-odata1c` and confirm (you can pin the version: `n8n-nodes-odata1c@0.2.0`).
 3. Restart n8n if the node does not appear immediately.
 
 Community nodes must be enabled on the instance (`N8N_COMMUNITY_PACKAGES_ENABLED=true`, and `N8N_UNVERIFIED_PACKAGES_ENABLED=true` for unverified packages).
@@ -62,10 +62,10 @@ Community nodes must be enabled on the instance (`N8N_COMMUNITY_PACKAGES_ENABLED
 ### From a tarball (offline or self-hosted)
 
 ```bash
-npm pack                       # produces n8n-nodes-odata1c-0.1.1.tgz
+npm pack                       # produces n8n-nodes-odata1c-0.2.0.tgz
 # on the n8n host, as the user that runs n8n:
 mkdir -p ~/.n8n/nodes/node_modules/n8n-nodes-odata1c
-tar -xzf n8n-nodes-odata1c-0.1.1.tgz -C ~/.n8n/nodes/node_modules/n8n-nodes-odata1c --strip-components=1
+tar -xzf n8n-nodes-odata1c-0.2.0.tgz -C ~/.n8n/nodes/node_modules/n8n-nodes-odata1c --strip-components=1
 systemctl restart n8n          # or restart the container
 ```
 
@@ -246,7 +246,7 @@ These are platform limitations, not node limitations:
 * **Every request is a 1C session** and consumes a licence for its duration. Prefer paging, filters and `$select`; avoid thousands of tiny requests per minute.
 * **`DELETE` is physical** and has no reference control. To hide an item, patch `DeletionMark: true` instead.
 * **Rights decide everything.** The OData user needs rights on the object, on the referenced objects, and on tabular sections. HTTP 403/500 with «Доступ запрещен» means the 1C role is missing, not the node.
-* **`$metadata` is big.** An ERP `$metadata` is about 20 MB; the node downloads it once per credential per 5 minutes and parses it in ~100 ms. The first node open in the editor may take a couple of seconds.
+* **`$metadata` is big.** An ERP `$metadata` is about 20 MB, and 1C builds it per request, so the download takes seconds. The node reads the entity set list once per credential, parses only the `<EntitySet>` tags (~5 ms) and keeps it for 12 hours: an expired list is served immediately and refreshed in the background, so the dropdown filters in milliseconds. Only the first open in a new n8n process waits for 1C — the editor shows a tip after 3 seconds. The *Metadata* resource caches the full document for 5 minutes.
 * **No `$batch` and no Atom.** The node speaks JSON only (`$format=json`).
 * **Composition of the OData interface is explicit.** An infobase publishes only the objects listed by `УстановитьСоставСтандартногоИнтерфейсаOData`; if an entity set is missing, change the composition in 1C.
 

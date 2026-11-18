@@ -12,8 +12,13 @@ import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import { customDescription } from './descriptions/CustomDescription';
 import { entityDescription } from './descriptions/EntityDescription';
 import { metadataDescription } from './descriptions/MetadataDescription';
-import { loadMetadata, odataRequest } from './GenericFunctions';
-import { entityFields, entityNavigationProperties, findEntitySet } from './metadata';
+import { loadEntitySets, loadMetadata, odataRequest } from './GenericFunctions';
+import {
+	entityFields,
+	entityNavigationProperties,
+	findEntitySet,
+	type ODataEntitySet,
+} from './metadata';
 import {
 	entityAddress,
 	parseJsonField,
@@ -555,24 +560,83 @@ export class OData1c implements INodeType {
 	}
 }
 
+/**
+ * How many entity sets one resource locator page returns. n8n renders every item it
+ * receives, so sending all 3,500 sets of an ERP infobase makes the dropdown heavy and
+ * slow to scroll; the editor asks for the next page when the list is scrolled to the end.
+ */
+const ENTITY_SET_PAGE_SIZE = 100;
+
+interface EntitySetSearchEntry {
+	name: string;
+	kind: string;
+	label: string;
+	nameLower: string;
+	kindLower: string;
+}
+
+/** Lower-cased view of the entity set list, built once per cached list. */
+const entitySetSearchIndex = new WeakMap<ODataEntitySet[], EntitySetSearchEntry[]>();
+
+function entitySetsForSearch(entitySets: ODataEntitySet[]): EntitySetSearchEntry[] {
+	const cached = entitySetSearchIndex.get(entitySets);
+	if (cached) {
+		return cached;
+	}
+	const index = entitySets.map((set) => ({
+		name: set.name,
+		kind: set.kind,
+		label: `${set.name} (${set.kind})`,
+		nameLower: set.name.toLowerCase(),
+		kindLower: set.kind.toLowerCase(),
+	}));
+	entitySetSearchIndex.set(entitySets, index);
+	return index;
+}
+
+/**
+ * Orders matches by relevance: an exact name first, then names that start with the
+ * query, then names that contain it, and only then matches on the object kind. Within
+ * a group the alphabetical order of the metadata is kept.
+ */
+function rankEntitySets(
+	index: EntitySetSearchEntry[],
+	needle: string,
+): EntitySetSearchEntry[] {
+	const exact: EntitySetSearchEntry[] = [];
+	const prefix: EntitySetSearchEntry[] = [];
+	const contains: EntitySetSearchEntry[] = [];
+
+	for (const entry of index) {
+		if (entry.nameLower === needle) {
+			exact.push(entry);
+		} else if (entry.nameLower.startsWith(needle)) {
+			prefix.push(entry);
+		} else if (entry.nameLower.includes(needle) || entry.kindLower.includes(needle)) {
+			contains.push(entry);
+		}
+	}
+
+	return [...exact, ...prefix, ...contains];
+}
+
 /** Search method for the entity set resource locator: reads the list from $metadata. */
 async function searchEntitySets(
 	this: ILoadOptionsFunctions,
 	filter?: string,
+	paginationToken?: string,
 ): Promise<INodeListSearchResult> {
-	const metadata = await loadMetadata(this);
+	const entitySets = await loadEntitySets(this);
+	const index = entitySetsForSearch(entitySets);
 	const needle = (filter ?? '').trim().toLowerCase();
-	const results = metadata.entitySets
-		.filter(
-			(set) =>
-				!needle ||
-				set.name.toLowerCase().includes(needle) ||
-				set.kind.toLowerCase().includes(needle),
-		)
-		.map((set) => ({
-			name: `${set.name} (${set.kind})`,
-			value: set.name,
-		}));
+	const matches = needle ? rankEntitySets(index, needle) : index;
 
-	return { results };
+	const offset = Math.max(0, Number.parseInt(paginationToken ?? '', 10) || 0);
+	const page = matches.slice(offset, offset + ENTITY_SET_PAGE_SIZE);
+	const nextOffset = offset + page.length;
+
+	return {
+		results: page.map((entry) => ({ name: entry.label, value: entry.name })),
+		...(nextOffset < matches.length ? { paginationToken: String(nextOffset) } : {}),
+	};
 }

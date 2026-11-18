@@ -7,8 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-11-18
+
+### Added
+
+* The entity set dropdown ranks its results: an exact name first, then names that start with
+  the typed text, then names that contain it, and matches on the object kind last.
+* The dropdown is paginated — 100 entity sets per request with `paginationToken`, the next
+  page is loaded when the list is scrolled to the end. A page is small enough to render
+  instantly, and the editor no longer receives 3,500 items per keystroke.
+* A slow-load tip in the dropdown after 3 seconds (`slowLoadNotice`), which now only appears
+  on the first read of `$metadata` in a new n8n process.
+
 ### Changed
 
+* The entity set dropdown no longer stalls for seconds while typing. n8n calls the list
+  search method on every keystroke and blanks the list until the answer arrives, and the
+  node used to re-read `$metadata` (tens of megabytes on a real ERP) whenever its 5-minute
+  cache had expired. The entity set list now:
+  * is parsed from the `<EntitySet>` tags only — 5 ms instead of 160 ms for a 20 MB document;
+  * is cached for 12 hours, and an expired list is returned immediately while a fresh copy
+    is downloaded in the background, so a search never waits for 1C again;
+  * is shared with the *Metadata* resource: a `$metadata` document that was just downloaded
+    for the field list is reused by the dropdown.
+* Measured on a 20.9 MB ERP `$metadata` (3,535 entity sets): 1C needs 2.5 s per `$metadata`
+  request, a cached search now takes 1 ms instead of 2.5 s plus a full parse.
 * READMEs: the trusted-publisher setup now states that **Direct npm publish** must be enabled
   under *Allowed actions*. A fresh trusted publisher allows staged publishes only and rejects a
   direct `npm publish` with `403 … OIDC permission denied for this action` — exactly what

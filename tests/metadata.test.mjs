@@ -5,6 +5,7 @@ import { require } from './helpers.mjs';
 
 const {
 	parseMetadata,
+	parseEntitySets,
 	entityKind,
 	findEntitySet,
 	entityFields,
@@ -95,4 +96,14 @@ test('parses a document without a namespace prefix', () => {
 	);
 	assert.equal(metadata.entitySets.length, 1);
 	assert.equal(metadata.entitySets[0].entityType, 'Catalog_A');
+});
+
+test('reads only the entity sets when the fields are not needed', () => {
+	const entitySets = parseEntitySets(EDMX);
+	assert.deepEqual(
+		entitySets.map((set) => `${set.name}:${set.kind}`),
+		['Catalog_Номенклатура:Catalog', 'Document_ЗаказКлиента:Document'],
+	);
+	// Same result as the full parse, which the dropdown relies on.
+	assert.deepEqual(entitySets, parseMetadata(EDMX).entitySets);
 });

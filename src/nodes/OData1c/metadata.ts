@@ -93,6 +93,37 @@ function stripNamespace(typeName: string): string {
 }
 
 /**
+ * Reads only the entity sets of an EDMX document.
+ *
+ * The `<EntityType>` blocks carry every field of every object and make up almost the
+ * whole document (an ERP 2.5 `$metadata` is about 20 MB), while a resource locator
+ * list needs the set names alone. Scanning only `<EntitySet>` tags keeps this in the
+ * low milliseconds, which matters because n8n calls the search method on every
+ * keystroke in the dropdown.
+ */
+export function parseEntitySets(xml: string): ODataEntitySet[] {
+	const entitySets: ODataEntitySet[] = [];
+	const entitySetRe = /<EntitySet\b([^>]*?)\/?>/g;
+	let entitySetMatch: RegExpExecArray | null;
+	while ((entitySetMatch = entitySetRe.exec(xml)) !== null) {
+		const attributes = parseAttributes(entitySetMatch[1]);
+		const name = attributes.Name ?? '';
+		if (!name) {
+			continue;
+		}
+		entitySets.push({
+			name,
+			entityType: stripNamespace(attributes.EntityType ?? ''),
+			kind: entityKind(name),
+		});
+	}
+
+	entitySets.sort((left, right) => left.name.localeCompare(right.name));
+
+	return entitySets;
+}
+
+/**
  * Parses the EDMX document returned by `$metadata`.
  *
  * The document is machine-generated and can be tens of megabytes for a real ERP
@@ -163,25 +194,7 @@ export function parseMetadata(xml: string): ODataMetadata {
 		entityTypes.set(name, { name, properties, navigationProperties });
 	}
 
-	const entitySets: ODataEntitySet[] = [];
-	const entitySetRe = /<EntitySet\b([^>]*?)\/?>/g;
-	let entitySetMatch: RegExpExecArray | null;
-	while ((entitySetMatch = entitySetRe.exec(xml)) !== null) {
-		const attributes = parseAttributes(entitySetMatch[1]);
-		const name = attributes.Name ?? '';
-		if (!name) {
-			continue;
-		}
-		entitySets.push({
-			name,
-			entityType: stripNamespace(attributes.EntityType ?? ''),
-			kind: entityKind(name),
-		});
-	}
-
-	entitySets.sort((left, right) => left.name.localeCompare(right.name));
-
-	return { entitySets, entityTypes };
+	return { entitySets: parseEntitySets(xml), entityTypes };
 }
 
 /** Finds a published entity set by its exact name (case-insensitive). */

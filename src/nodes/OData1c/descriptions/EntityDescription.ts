@@ -86,6 +86,11 @@ export const entityDescription: INodeProperties[] = [
 				typeOptions: {
 					searchListMethod: 'searchEntitySets',
 					searchable: true,
+					slowLoadNotice: {
+						message:
+							'The first read of the entity set list downloads $metadata from 1C, which takes a few seconds on a large infobase. Later searches use the cached list.',
+						timeout: 3000,
+					},
 				},
 			},
 			{

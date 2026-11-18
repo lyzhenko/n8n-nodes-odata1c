@@ -8,8 +8,8 @@ import type {
 } from 'n8n-workflow';
 import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 
-import type { ODataMetadata } from './metadata';
-import { parseMetadata } from './metadata';
+import type { ODataEntitySet, ODataMetadata } from './metadata';
+import { parseEntitySets, parseMetadata } from './metadata';
 import {
 	ODATA_CREDENTIAL_NAME,
 	encodeNonAscii,
@@ -151,16 +151,90 @@ export async function odataRequest<T = IDataObject | IDataObject[] | string>(
 
 const METADATA_TTL_MS = 5 * 60 * 1000;
 
+/**
+ * How long the entity set list of a service root stays valid. The list changes only
+ * when the published OData composition changes, so it can live much longer than the
+ * full metadata document; an expired entry is still served while it is refreshed.
+ */
+const ENTITY_SET_TTL_MS = 12 * 60 * 60 * 1000;
+
 interface CacheEntry {
 	timestamp: number;
 	value: Promise<ODataMetadata>;
 }
 
+interface EntitySetCacheEntry {
+	timestamp: number;
+	value: ODataEntitySet[];
+	refreshing?: Promise<void>;
+}
+
 const metadataCache = new Map<string, CacheEntry>();
+const entitySetCache = new Map<string, EntitySetCacheEntry>();
 
 /** Drops cached `$metadata` documents (used by tests and for a forced refresh). */
 export function clearMetadataCache(): void {
 	metadataCache.clear();
+	entitySetCache.clear();
+}
+
+function metadataCacheKey(credentials: OData1cCredentials): string {
+	return `${odataBaseUrl(credentials)}|${credentials.username ?? ''}`;
+}
+
+async function fetchEntitySets(
+	context: ODataContext,
+	key: string,
+): Promise<ODataEntitySet[]> {
+	const xml = await odataRequest<string>(context, {
+		method: 'GET',
+		path: '$metadata',
+		json: false,
+		headers: { Accept: 'application/xml' },
+	});
+	if (typeof xml !== 'string' || !xml.includes('<')) {
+		throw new NodeOperationError(
+			getNode(context),
+			'1C returned an unexpected response for $metadata. Check that the standard OData interface is published for this infobase and that the user has access to it.',
+		);
+	}
+	const value = parseEntitySets(xml);
+	entitySetCache.set(key, { timestamp: Date.now(), value });
+	return value;
+}
+
+/**
+ * Returns the entity sets published in the OData interface.
+ *
+ * n8n calls the resource locator search method on every keystroke and shows an empty
+ * list until the answer arrives, so this must never wait for a `$metadata` download
+ * that is already known: the list is cached for hours and an expired list is returned
+ * immediately while a fresh copy is fetched in the background. Only the very first
+ * call of a process pays for the round-trip.
+ */
+export async function loadEntitySets(context: ODataContext): Promise<ODataEntitySet[]> {
+	const credentials = await getODataCredentials(context);
+	const key = metadataCacheKey(credentials);
+	const cached = entitySetCache.get(key);
+
+	if (cached) {
+		if (Date.now() - cached.timestamp < ENTITY_SET_TTL_MS) {
+			return cached.value;
+		}
+		if (!cached.refreshing) {
+			// Fire and forget: the caller gets the known list right away. A failed refresh
+			// leaves the old list in place and the next call retries.
+			cached.refreshing = fetchEntitySets(context, key)
+				.then(() => undefined)
+				.catch(() => undefined)
+				.finally(() => {
+					cached.refreshing = undefined;
+				});
+		}
+		return cached.value;
+	}
+
+	return await fetchEntitySets(context, key);
 }
 
 /**
@@ -173,7 +247,7 @@ export async function loadMetadata(
 	options: { forceRefresh?: boolean } = {},
 ): Promise<ODataMetadata> {
 	const credentials = await getODataCredentials(context);
-	const key = `${odataBaseUrl(credentials)}|${credentials.username ?? ''}`;
+	const key = metadataCacheKey(credentials);
 	const cached = metadataCache.get(key);
 	const now = Date.now();
 
@@ -194,7 +268,10 @@ export async function loadMetadata(
 				'1C returned an unexpected response for $metadata. Check that the standard OData interface is published for this infobase and that the user has access to it.',
 			);
 		}
-		return parseMetadata(xml);
+		const metadata = parseMetadata(xml);
+		// The same document was just downloaded: reuse its entity sets for the dropdown.
+		entitySetCache.set(key, { timestamp: Date.now(), value: metadata.entitySets });
+		return metadata;
 	})();
 
 	metadataCache.set(key, { timestamp: now, value });
